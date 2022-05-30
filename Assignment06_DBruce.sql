@@ -169,7 +169,7 @@ print
  2) You can use your working code from assignment 5 for much of this assignment
  3) You must use the BASIC views for each table after they are created in Question 1
 ------------------------------------------------------------------------------------------'
-
+Go
 -- Question 1 (5% pts): How can you create BACIC views to show data from each table in the database.
 -- NOTES: 1) Do not use a *, list out each column!
 --        2) Create one view per table!
@@ -182,6 +182,7 @@ AS
 Select CategoryID, CategoryName from dbo.Categories;
 Go
 Select * from vCategories;
+Go
 --Basic Products view
 Create View vProducts
 WITH SCHEMABINDING
@@ -189,6 +190,7 @@ AS
 Select ProductID, ProductName, CategoryID, UnitPrice from dbo.Products;
 Go
 Select * from vProducts;
+Go
 --Basic Employees view
 Create View vEmployees
 WITH SCHEMABINDING
@@ -196,6 +198,7 @@ AS
 Select EmployeeID, EmployeeFirstName, EmployeeLastName, ManagerID from dbo.Employees;
 Go
 Select * from vEmployees;
+Go
 --Basic Inventories view
 Create View vInventories
 WITH SCHEMABINDING
@@ -203,6 +206,7 @@ AS
 Select InventoryID, InventoryDate, EmployeeID, ProductID, Count from dbo.Inventories;
 Go
 Select * from vInventories;
+Go
 -- Question 2 (5% pts): How can you set permissions, so that the public group CANNOT select data 
 -- from each table, but can select data from each view?
 
@@ -215,7 +219,7 @@ Grant Select On vEmployees to Public;
 Grant Select On vProducts to Public;
 Grant Select On vCategories to Public;
 Grant Select On vInventories to Public;
-
+Go
 -- Question 3 (10% pts): How can you create a view to show a list of Category and Product names, 
 -- and the price of each product?
 -- Order the result by the Category and Product!
@@ -230,13 +234,13 @@ Create View vProductsByCategories
 WITH SCHEMABINDING
 AS
 Select Top 10000
-CategoryName, ProductName, UnitPrice From dbo.Products as P
-Inner Join dbo.Categories as C
+CategoryName, ProductName, UnitPrice From dbo.vProducts as P
+Inner Join dbo.vCategories as C
 On P.CategoryID = C.CategoryID
 Order by CategoryName, ProductName;
 Go
 Select * from vProductsByCategories;
-
+Go
 -- Question 4 (10% pts): How can you create a view to show a list of Product names 
 -- and Inventory Counts on each Inventory Date?
 -- Order the results by the Product, Date, and Count!
@@ -254,13 +258,13 @@ Create View vInventoriesByProductsByDates
 WITH SCHEMABINDING
 AS
 SELECT TOP 10000
-ProductName, InventoryDate, Count From dbo.Products as P
-JOIN dbo.Inventories as I
+ProductName, InventoryDate, Count From dbo.vProducts as P
+JOIN dbo.vInventories as I
 On P.ProductID = I.ProductID
 Order By ProductName, InventoryDate, Count;
 Go
 Select * from vInventoriesByProductsByDates;
-
+Go
 -- Question 5 (10% pts): How can you create a view to show a list of Inventory Dates 
 -- and the Employee that took the count?
 -- Order the results by the Date and return only one row per date!
@@ -276,14 +280,14 @@ Create View vInventoriesByEmployeesByDates
 WITH SCHEMABINDING
 AS
 SELECT TOP 10000
-InventoryDate, [EmployeeName] = EmployeeFirstName + ' ' + EmployeeLastName From dbo.Inventories as I
-JOIN dbo.Employees as E
+InventoryDate, [EmployeeName] = EmployeeFirstName + ' ' + EmployeeLastName From dbo.vInventories as I
+JOIN dbo.vEmployees as E
 On I.EmployeeID = E.EmployeeID
 GROUP BY InventoryDate, EmployeeFirstName + ' ' + EmployeeLastName
 Order By InventoryDate, EmployeeName;
 Go
 Select * from vInventoriesByEmployeesByDates;
-
+Go
 -- Question 6 (10% pts): How can you create a view to show a list of Categories, Products, 
 -- and the Inventory Date and Count of each product?
 -- Order the results by the Category, Product, Date, and Count!
@@ -302,15 +306,15 @@ Create View vInventoriesByProductsByCategories
 WITH SCHEMABINDING
 AS
 SELECT TOP 10000
-CategoryName, ProductName, InventoryDate, Count From dbo.Categories as C
-JOIN dbo.Products as P
+CategoryName, ProductName, InventoryDate, Count From dbo.vCategories as C
+JOIN dbo.vProducts as P
 On C.CategoryID = P.CategoryID
-JOIN dbo.Inventories as I
+JOIN dbo.vInventories as I
 On P.ProductID = I.ProductID
 Order By CategoryName, ProductName, InventoryDate, Count;
 Go
 Select * From vInventoriesByProductsByCategories;
-
+Go
 -- Question 7 (10% pts): How can you create a view to show a list of Categories, Products, 
 -- the Inventory Date and Count of each product, and the EMPLOYEE who took the count?
 -- Order the results by the Inventory Date, Category, Product and Employee!
@@ -330,17 +334,17 @@ WITH SCHEMABINDING
 AS
 SELECT TOP 10000
 CategoryName, ProductName, InventoryDate, Count, [EmployeeName] = EmployeeFirstName + ' ' + EmployeeLastName
-FROM dbo.Categories as C
-JOIN dbo.Products as P
+FROM dbo.vCategories as C
+JOIN dbo.vProducts as P
 On C.CategoryID = P.CategoryID
-JOIN dbo.Inventories as I
+JOIN dbo.vInventories as I
 On P.ProductID = I.ProductID
-JOIN dbo.Employees as E
+JOIN dbo.vEmployees as E
 On I.EmployeeID = E.EmployeeID
 Order by InventoryDate, CategoryName, ProductName, EmployeeName;
 Go
 Select * From vInventoriesByProductsByEmployees;
-
+Go
 -- Question 8 (10% pts): How can you create a view to show a list of Categories, Products, 
 -- the Inventory Date and Count of each product, and the Employee who took the count
 -- for the Products 'Chai' and 'Chang'? 
@@ -360,18 +364,18 @@ WITH SCHEMABINDING
 AS
 SELECT TOP 10000
 CategoryName, ProductName, InventoryDate, Count, [EmployeeName] = EmployeeFirstName + ' ' + EmployeeLastName
-From dbo.Categories as C
-JOIN dbo.Products as P
+From dbo.vCategories as C
+JOIN dbo.vProducts as P
 On C.CategoryID = P.CategoryID
-JOIN dbo.Inventories as I
+JOIN dbo.vInventories as I
 On P.ProductID = I.ProductID
-JOIN dbo.Employees as E
+JOIN dbo.vEmployees as E
 On I.EmployeeID = E.EmployeeID
 Where ProductName in ('Chai', 'Chang') 
 Order By InventoryDate;
 Go
 Select * From vInventoriesForChaiAndChangByEmployees;
-
+Go
 -- Question 9 (10% pts): How can you create a view to show a list of Employees and the Manager who manages them?
 -- Order the results by the Manager's name!
 
@@ -393,13 +397,13 @@ AS
 SELECT TOP 10000
 M.EmployeeFirstName + ' ' + M.EmployeeLastName as ManagerName
 ,E.EmployeeFirstName + ' ' + E.EmployeeLastName as EmployeeName
-From dbo.Employees as E
-Inner Join dbo.Employees as M
+From dbo.vEmployees as E
+Inner Join dbo.vEmployees as M
 On E.ManagerID = M.EmployeeID
 Order By 1,2;
 Go
 Select * From vEmployeesByManager;
-
+Go
 -- Question 10 (20% pts): How can you create one view to show all the data from all four 
 -- BASIC Views? Also show the Employee's Manager Name and order the data by 
 -- Category, Product, InventoryID, and Employee.
@@ -425,14 +429,14 @@ AS
 SELECT TOP 10000
 C.CategoryID, C.CategoryName, P.ProductID, P.ProductName, P.UnitPrice, E.EmployeeID, M.ManagerID, M.EmployeeFirstName + ' ' + M.EmployeeLastName as ManagerName
 ,E.EmployeeFirstName + ' ' + E.EmployeeLastName as EmployeeName, I.InventoryID, I.InventoryDate, Count
-From dbo.Employees as E
-Inner Join dbo.Employees as M
+From dbo.vEmployees as E
+Inner Join dbo.vEmployees as M
 On E.ManagerID = M.EmployeeID
-JOIN dbo.Inventories as I
+JOIN dbo.vInventories as I
 On E.EmployeeID = I.EmployeeID
-JOIN dbo.Products as P
+JOIN dbo.vProducts as P
 On I.ProductID = P.ProductID
-JOIN dbo.Categories as C
+JOIN dbo.vCategories as C
 On P.CategoryID = C.CategoryID
 Order By CategoryName, ProductName, InventoryID, EmployeeName;
 Go
